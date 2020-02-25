@@ -6,7 +6,7 @@
  * @flow
  */
 
-import React, {Fragment} from 'react';
+import React, { Fragment, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -24,7 +24,49 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import messaging from '@react-native-firebase/messaging';
+
+//1
+const checkPermission = () => {
+  messaging().hasPermission()
+    .then(enabled => {
+      if (enabled) {
+        getToken();
+      } else {
+        requestPermission();
+      }
+    })
+    .catch(error => {
+      console.log("error checking permisions " + error);
+    });
+};
+
+//2
+const requestPermission = () => {
+  messaging().requestPermission()
+    .then(() => {
+      getToken();
+    }).catch(error => {
+      console.log('permission rejected ' + error);
+    })
+};
+
+//3
+const getToken = () => {
+  messaging().getToken()
+    .then(token => {
+      console.log("push token " + token)
+    }).catch(error => {
+      console.log("error getting push token " + error)
+    });
+};
+
 const App = () => {
+
+  useEffect(() => {
+    checkPermission();
+  });
+
   return (
     <Fragment>
       <StatusBar barStyle="dark-content" />
